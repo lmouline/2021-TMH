@@ -3,3 +3,6 @@
 
 # VirtualEnv files
 venv
+
+# Python files
+__pycache__
