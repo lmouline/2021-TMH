@@ -124,10 +124,3 @@ class CSVFileOutput(Output):
             self.__open(file_name)
 
         self.writer.writerow(msg)
-
-
-if __name__ == '__main__':
-    with CSVFileOutput("test2") as out:
-        for i in range(1, 10):
-            out.out(OutMsg(value1="Youpi", value2=i))
-
