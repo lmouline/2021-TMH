@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import patch
-import out
+import pv_simulator.out
 
 
 class TestClass(unittest.TestCase):
-    @patch('out.info')
+    @patch('pv_simulator.out.info')
     def test(self, mocked):
-        out.LoggerOutput().out("Take this!")
+        pv_simulator.out.LoggerOutput().out("Take this!")
         mocked.assert_called_once()
