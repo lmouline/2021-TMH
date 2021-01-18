@@ -79,6 +79,8 @@ class CSVFileOutput(Output):
         """
         if today_file_name is None:
             self.today_file_name = self.__today_file_name()
+        else:
+            self.today_file_name = today_file_name
 
         file_exist = path.isfile(self.today_file_name)
 
