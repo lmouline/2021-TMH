@@ -1,6 +1,6 @@
 """ A module that is responsible of 'output' service
 
-.. moduleauthor: Ludovic Mouline
+Author: Ludovic Mouline
 """
 from __future__ import annotations
 
