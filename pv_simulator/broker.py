@@ -35,8 +35,8 @@ class Broker:
     CFG_HOST = "host"
     CFG_PORT = "port"
 
-    connection: pika.BlockingConnection
-    channel: pika.adapters.blocking_connection.BlockingChannel
+    connection: pika.BlockingConnection = None
+    channel: pika.adapters.blocking_connection.BlockingChannel = None
 
     def __init__(self, config_file: str = DEFAULT_CFG_FILE_NAME):
         self.__init_broker(config_file)
@@ -67,10 +67,12 @@ class Broker:
             host = self.DEFAULT_HOST if config[self.SECTION_NAME][self.CFG_HOST] is None \
                 else config[self.SECTION_NAME][self.CFG_HOST]
             port = self.DEFAULT_PORT if config[self.SECTION_NAME][self.CFG_PORT] is None \
-                else config[self.SECTION_NAME][self.CFG_PORT]
+                else int(config[self.SECTION_NAME][self.CFG_PORT])
 
+        logging.info(f"Connection attempt with {host}:{port}")
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
         self.channel = self.connection.channel()
+        logging.info("Connection established")
 
     def __del__(self):
         """Closes the connection when the broker instance is deleted."""
