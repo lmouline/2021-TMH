@@ -12,22 +12,24 @@ class TestBrokerConfig(unittest.TestCase):
         pika_mock.ConnectionParameters.assert_called_once_with(host="localhost", port=5672)
         pika_mock.BlockingConnection.assert_called_once()
         logging_mock.warning.assert_called_once()
+        logging_mock.info.assert_called()
 
     @patch('pv_simulator.broker.pika')
     @patch('pv_simulator.broker.logging')
     def test_file_wo_correct_section(self, logging_mock, pika_mock):
-        Broker()
+        Broker("tests/wrong-broker.ini")
         pika_mock.ConnectionParameters.assert_called_once_with(host="localhost", port=5672)
         pika_mock.BlockingConnection.assert_called_once()
         logging_mock.warning.assert_called_once()
+        logging_mock.info.assert_called()
 
     @patch('pv_simulator.broker.pika')
     @patch('pv_simulator.broker.logging')
     def test_file_correct(self, logging_mock, pika_mock):
-        Broker("broker-test.ini")
+        Broker("tests/broker-test.ini")
         pika_mock.ConnectionParameters.assert_called_once_with(host="192.168.74.98", port=123456)
         pika_mock.BlockingConnection.assert_called_once()
-        logging_mock.info.assert_called_once()
+        logging_mock.info.assert_called()
 
     @patch('pv_simulator.broker.pika')
     @patch('pv_simulator.broker.logging')  # mock to avoid logging appears in the console during the tests
