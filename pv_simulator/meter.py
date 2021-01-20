@@ -46,10 +46,10 @@ class MeterFactory:
             MeterFactory()
         return MeterFactory.__instance
 
-    def new_meter(self, broker: pv_simulator.broker.Broker):
-        id = self.__BASE_ID + str(self.__id_next)
+    def new_meter(self, broker: pv_simulator.broker.Producer):
+        m_id = self.__BASE_ID + str(self.__id_next)
         self.__id_next = self.__id_next + 1
-        return Meter(id, broker)
+        return Meter(m_id, broker)
 
 
 class Meter:
@@ -60,11 +60,11 @@ class Meter:
     WARNING: this approach cannot be used in a multi-threading application, or the meter id will not be unique.
     """
 
-    def __init__(self, id: str, broker: pv_simulator.broker.Broker):
+    def __init__(self, m_id: str, broker: pv_simulator.broker.Producer):
         """The constructor should not be directly called. It is recommended to use the factory."""
-        self.meter_id = id
+        self.meter_id = m_id
         self.broker = broker
-        self.broker.open_channel(self)
+        self.broker.open_channel(self.meter_id)
 
     def read_consumption(self) -> float:
         return uniform(MIN_CONS, MAX_CONS)

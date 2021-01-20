@@ -19,14 +19,14 @@ from __future__ import annotations
 import configparser
 import pika
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
+
 if TYPE_CHECKING:
     import pv_simulator.meter
 
 
 class Broker:
-    """Class that handles the connection to the broker."""
-
+    """Class that handles the connexion to a broker"""
     DEFAULT_HOST = "localhost"
     DEFAULT_PORT = 5672
     DEFAULT_CFG_FILE_NAME = "broker.ini"
@@ -79,12 +79,28 @@ class Broker:
         if self.connection is not None:
             self.connection.close()
 
-    def open_channel(self, meter: pv_simulator.meter.Meter):
-        self.channel.queue_declare(queue=meter.id)
+    def open_channel(self, meter_id: str):
+        self.channel.queue_declare(queue=meter_id)
 
-    def del_channel(self, meter: pv_simulator.meter.Meter):
-        self.channel.queue_delete(queue=meter.id)
+    def del_channel(self, meter_id: str):
+        self.channel.queue_delete(queue=meter_id)
+
+
+class Producer(Broker):
+    """Class that handles the connection to the broker by the meter (producer)."""
 
     def send_msg(self, meter: pv_simulator.meter.Meter, msg: str):
-        self.open_channel(meter)
-        self.channel.basic_publish(exchange='', routing_key=meter.id, body=msg)
+        self.open_channel(meter.meter_id)
+        self.channel.basic_publish(exchange='', routing_key=meter.meter_id, body=msg)
+
+
+class Consumer(Broker):
+    """Class that handles the connection to the broker by the PV service (consumer)"""
+
+    def bind_messages(self, meter_id: str, callback: Callable):
+        self.open_channel(meter_id)
+        self.channel.basic_consume(queue=meter_id, auto_ack=True, on_message_callback=callback)
+
+    def start_consuming(self):
+        self.channel.start_consuming()
+
