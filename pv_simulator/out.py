@@ -19,7 +19,7 @@ class OutMsg(TypedDict):
 class Output:
     """Informal interface for the output mechanism."""
 
-    def out(self, msg) -> None:
+    def out(self, msg: OutMsg) -> None:
         """Process the given message"""
         pass
 
@@ -27,7 +27,7 @@ class Output:
 class LoggerOutput(Output):
     """This output logs the message as it in the console."""
 
-    def out(self, msg) -> None:
+    def out(self, msg: OutMsg) -> None:
         info(msg)
 
 

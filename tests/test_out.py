@@ -7,7 +7,7 @@ from os import path, remove
 class TestLoggerOutPut(unittest.TestCase):
     @patch('pv_simulator.out.info')
     def test(self, mocked):
-        msg = "Random message"
+        msg = pv_simulator.out.OutMsg(value1="Value", value2=5)
         pv_simulator.out.LoggerOutput().out(msg)
         mocked.assert_called_with(msg)
 
