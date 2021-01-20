@@ -77,4 +77,4 @@ class Meter:
         logging.info(f"Message sent: {to_send}")
 
     def __del__(self):
-        self.broker.del_channel(self)
+        self.broker.del_channel(self.meter_id)

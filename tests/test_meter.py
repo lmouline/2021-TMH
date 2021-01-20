@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch, MagicMock
 from pv_simulator.meter import Meter, MeterFactory, MeterValMsg
 
 
-class MeterTestCreation(unittest.TestCase):
+class MeterTest(unittest.TestCase):
     def tearDown(self) -> None:
         MeterFactory._MeterFactory__instance = None
 
@@ -27,7 +27,7 @@ class MeterTestCreation(unittest.TestCase):
 
         mocked_read_cons.return_value = v
         mock_time.time.return_value = time
-        mock_broker = MagicMock()
+        mock_broker = Mock()
 
         expected_msg = MeterValMsg(meter_id="Meter 0", value=v, time_s=time)
         expected_to_send = json.dumps(expected_msg)
@@ -40,3 +40,10 @@ class MeterTestCreation(unittest.TestCase):
         mocked_read_cons.allow_called_once()
         mock_broker.send_msg.assert_called_once_with(meter, expected_to_send)
         mock_logging.info.assert_called_once()
+
+    def test_deletion(self):
+        mock_broker = Mock()
+        meter_id = "Meter ID"
+        meter = Meter(meter_id, mock_broker)
+        del meter
+        mock_broker.del_channel.assert_called_once_with(meter_id)
