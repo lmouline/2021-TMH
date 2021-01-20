@@ -12,8 +12,10 @@ from typing import TypedDict
 
 
 class OutMsg(TypedDict):
-    value1: str
-    value2: int
+    time_s: int
+    meter_power_value_w: float
+    pv_power_value_kw: float
+    sum_meter_pv_w: float
 
 
 class Output:
