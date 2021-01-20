@@ -1,10 +1,19 @@
+import logging
 import unittest
 from unittest.mock import patch, Mock
 
 from pv_simulator.broker import Producer
 
 
-class TestBroker(unittest.TestCase):
+class NoLoggerTest(unittest.TestCase):
+    def setUp(self) -> None:
+        logging.getLogger().disabled = True
+
+    def tearDown(self) -> None:
+        logging.getLogger().disabled = False
+
+
+class TestBroker(NoLoggerTest):
     @patch('pv_simulator.broker.pika')
     @patch('pv_simulator.broker.logging')
     def test_no_correct_file(self, logging_mock, pika_mock):
@@ -32,15 +41,13 @@ class TestBroker(unittest.TestCase):
         logging_mock.info.assert_called()
 
     @patch('pv_simulator.broker.pika')
-    @patch('pv_simulator.broker.logging')  # mock to avoid logging appears in the console during the tests
-    def test_comm_close_after_del(self, logging_mock, pika_mock):
+    def test_comm_close_after_del(self, pika_mock):
         broker = Producer()
         del broker
         pika_mock.BlockingConnection().close.assert_called_once()
 
     @patch('pv_simulator.broker.pika')
-    @patch('pv_simulator.broker.logging')  # mock to avoid logging appears in the console during the tests
-    def test_del_channel(self, logging_mock, pika_mock):
+    def test_del_channel(self, pika_mock):
         broker = Producer()
 
         meter_id = "Meter <ID>"
@@ -48,10 +55,13 @@ class TestBroker(unittest.TestCase):
         pika_mock.BlockingConnection().channel().queue_delete.assert_called_once_with(queue=meter_id)
 
 
-class TestProducer(unittest.TestCase):
+class TestProducer(NoLoggerTest):
+
+    def setUp(self) -> None:
+        logging.getLogger().disabled = True
+
     @patch('pv_simulator.broker.pika')
-    @patch('pv_simulator.broker.logging')  # mock to avoid logging appears in the console during the tests
-    def test_send_msg(self, logging_mock, pika_mock):
+    def test_send_msg(self, pika_mock):
         broker = Producer()
         mock_meter = Mock()
         mock_meter.meter_id = "Meter <ID>"
@@ -63,3 +73,8 @@ class TestProducer(unittest.TestCase):
         pika_mock.BlockingConnection().channel().basic_publish.assert_called_once_with(exchange='',
                                                                                        routing_key=mock_meter.meter_id,
                                                                                        body=msg)
+
+
+class TestConsumer(NoLoggerTest):
+    def test_bind_messages(self):
+        pass
