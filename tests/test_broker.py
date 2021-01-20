@@ -2,7 +2,7 @@ import logging
 import unittest
 from unittest.mock import patch, Mock
 
-from pv_simulator.broker import Producer
+from pv_simulator.broker import Producer, Consumer
 
 
 class NoLoggerTest(unittest.TestCase):
@@ -57,9 +57,6 @@ class TestBroker(NoLoggerTest):
 
 class TestProducer(NoLoggerTest):
 
-    def setUp(self) -> None:
-        logging.getLogger().disabled = True
-
     @patch('pv_simulator.broker.pika')
     def test_send_msg(self, pika_mock):
         broker = Producer()
@@ -76,5 +73,24 @@ class TestProducer(NoLoggerTest):
 
 
 class TestConsumer(NoLoggerTest):
-    def test_bind_messages(self):
-        pass
+    @patch('pv_simulator.broker.pika')
+    def test_bind_messages(self, pika_mock):
+        consumer = Consumer()
+
+        meter_id = "Meter <ID>"
+
+        def callback(): pass
+
+        consumer.bind_messages(meter_id, callback)
+        pika_mock.BlockingConnection().channel().queue_declare.assert_called_once_with(queue=meter_id)
+        pika_mock.BlockingConnection().channel().basic_consume.assert_called_once_with(queue=meter_id,
+                                                                                       auto_ack=True,
+                                                                                       on_message_callback=callback)
+        pika_mock.BlockingConnection().channel().start_consuming.assert_not_called()
+
+    @patch('pv_simulator.broker.pika')
+    def test_start_consuming(self, pika_mock):
+        consumer = Consumer()
+
+        consumer.start_consuming()
+        pika_mock.BlockingConnection().channel().start_consuming.assert_called_once()

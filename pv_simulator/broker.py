@@ -102,5 +102,9 @@ class Consumer(Broker):
         self.channel.basic_consume(queue=meter_id, auto_ack=True, on_message_callback=callback)
 
     def start_consuming(self):
+        """!!Blocking method!!
+        Starts consuming incoming messages in the broker. Should be called after all the messages bindings have been
+        performed with the bind_message method.
+        """
         self.channel.start_consuming()
 
