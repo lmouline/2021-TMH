@@ -1,53 +1,77 @@
+"""This module is responsible of the PV service.
+
+It consumes a meter value, read its own power value, add the two and wrote to an output (see out module).
+
+Author: Ludovic Mouline
+"""
 import json
-import math
-import time
-
-from math import cos
-import random
-
+from time import localtime
+from math import cos, fabs
+from random import random
 from pv_simulator.broker import Consumer
 from pv_simulator.out import Output, OutMsg
 
-_NOISE = 0.01
+# Below constants are used to mock a PV power value
+# The value should not exceed the _MAX_POWER_KW, and we assume that it's value is always equals to 0 between _SUN_RISE_H
+# and _SUN_SET_H.
+# For the day, to reproduce a belly-curve, we used the cosine function with shifting parameters.
+# These parameters have been experimentally defined to represent values strictly superior to 0.
+# Noise parameters are here to avoid a "perfect" curve.
+#
+# The idea was not to represent a realistic function but something that can get closed to that.
+# One may try to reproduce this with other functions (sine, gaussian distribution, gamma distribution, ...).
 _MAX_POWER_KW = 4
+
+_POWER_NOISE = 0.01
 
 _SUN_RISE_H = 8
 _SUN_SET_H = 20
 
+# WARNING: changing one of the below values may result in negative power consumption
+_PERIOD_FACTOR_SHIFT = 1 / 15_000
 _SHIFT_BASE = 10_000
 _SHIFT_NOISE_MIN = -0.05
 _SHIFT_NOISE_MAX = 0.02
 _SHIFT_NOISE_DIFF = _SHIFT_NOISE_MAX - _SHIFT_NOISE_MIN
 
 
-def _noise() -> float:
-    return (random.random() * 2 * _NOISE) - _NOISE
+def _power_noise() -> float:
+    """Returns the noise to add to the power value. The noise is a float between
+    [-_POWER_NOISE, _POWER_NOISE]"""
+    return (random() * 2 * _POWER_NOISE) - _POWER_NOISE
 
 
 def _shift_noise() -> float:
-    return _SHIFT_BASE + random.random() * _SHIFT_NOISE_DIFF - math.fabs(_SHIFT_NOISE_MIN)
+    """Returns a noise to add to the cosine shift performed."""
+    return _SHIFT_BASE + random() * _SHIFT_NOISE_DIFF - fabs(_SHIFT_NOISE_MIN)
 
 
 def _rand_power(time_s: int, factor: float, shift_noise: float) -> float:
-    _, _, _, hour, *_ = time.localtime(time_s)
+    """Mock the PV power reader by generating a values with the following constraints:
+         - 0 if the current time is less than _SUN_RISE_H or greater than _SUN_SET_H
+         - value of the cos(x), where x is the time of the day, we performed shifting operation and modification
+         of the period to have only one "positive bell" (values >= 0) between _SUN_RISE_H and _SUN_SET_H
+    """
+    _, _, _, hour, *_ = localtime(time_s)
 
     if _SUN_RISE_H > hour > _SUN_SET_H:
         return 0
 
-    return factor * cos(time_s / 15_000 - shift_noise) + _noise()
+    return factor * cos(time_s * _PERIOD_FACTOR_SHIFT - shift_noise) + _power_noise()
 
 
 class PVService:
+    """Class to encapsulate the behaviour of a PV service"""
+
     def __init__(self, meter_id: str, consumer: Consumer, *outputs: Output):
-        self._factor = random.random() * _MAX_POWER_KW
+        self._factor = random() * _MAX_POWER_KW
         self._shift_noise = _shift_noise()
         self.consumer = consumer
 
         def callback(ch, method, properties, body):
-            message = json.loads(body)
+            message = json.loads(body)  # Message is json string build from the meter.MeterValMsg typed dictionary
 
             pv_power_value = self.read_power(message["time_s"])
-
             sum_power_w = pv_power_value * 1_000 + message["value"]
 
             for output in outputs:
@@ -61,4 +85,3 @@ class PVService:
 
     def read_power(self, time_s) -> float:
         return _rand_power(time_s, self._factor, self._shift_noise)
-
