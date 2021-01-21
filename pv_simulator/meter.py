@@ -37,7 +37,7 @@ class MeterFactory:
         else:
             MeterFactory.__instance = self
 
-        self.__BASE_ID = "Meter "
+        self.__BASE_ID = "Meter_"
         self.__id_next = 0
 
     @staticmethod
