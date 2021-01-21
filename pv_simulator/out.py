@@ -62,6 +62,8 @@ class CSVFileOutput(Output):
         self.writer = None
         self.today_file_name = None
 
+        self.__open()
+
     def __today_file_name(self) -> str:
         """
         Return the formatted file name that is:
@@ -99,14 +101,7 @@ class CSVFileOutput(Output):
         if self.current_file is not None:
             self.current_file.close()
 
-    def __enter__(self) -> CSVFileOutput:
-        """
-        Open the file for the current day
-        """
-        self.__open()
-        return self
-
-    def __exit__(self, *args):
+    def __del__(self):
         """Close the current file"""
         self.__close()
 

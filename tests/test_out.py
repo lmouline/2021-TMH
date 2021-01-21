@@ -38,8 +38,8 @@ class TestCSVFile(unittest.TestCase):
 
         self.assertFalse(path.exists(file_name))
 
-        with pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test"):
-            pass
+        file = pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test")
+        del file
 
         self.assertTrue(path.exists(file_name))
 
@@ -54,16 +54,17 @@ class TestCSVFile(unittest.TestCase):
         mocked_date.today().month = self.MONTH
         mocked_date.today().day = self.DAY + 1
 
-        with pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test") as file:
-            file.out(pv_simulator.out.OutMsg(time_s=1547, pv_power_value_kw=2.5,
-                                             meter_power_value_w=8745.65, sum_meter_pv_w=11245.65))
-            file.out(pv_simulator.out.OutMsg(time_s=1548, pv_power_value_kw=2.4,
-                                             meter_power_value_w=8600.54, sum_meter_pv_w=11000.54))
+        file = pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test")
+        file.out(pv_simulator.out.OutMsg(time_s=1547, pv_power_value_kw=2.5,
+                                         meter_power_value_w=8745.65, sum_meter_pv_w=11245.65))
+        file.out(pv_simulator.out.OutMsg(time_s=1548, pv_power_value_kw=2.4,
+                                         meter_power_value_w=8600.54, sum_meter_pv_w=11000.54))
 
-            mocked_date.today().day = self.DAY + 2
+        mocked_date.today().day = self.DAY + 2
 
-            file.out(pv_simulator.out.OutMsg(time_s=1549, pv_power_value_kw=0.2,
-                                             meter_power_value_w=500.35, sum_meter_pv_w=700.35))
+        file.out(pv_simulator.out.OutMsg(time_s=1549, pv_power_value_kw=0.2,
+                                         meter_power_value_w=500.35, sum_meter_pv_w=700.35))
+        del file
 
         file1 = f"{self.TEST_FILE_FOLDER}{os.sep}test-{self.YEAR}-{self.MONTH}-{self.DAY + 1}.csv"
         file2 = f"{self.TEST_FILE_FOLDER}{os.sep}test-{self.YEAR}-{self.MONTH}-{self.DAY + 2}.csv"
@@ -84,7 +85,6 @@ class TestCSVFile(unittest.TestCase):
             self.assertEqual("time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
             self.assertEqual("1549,500.35,0.2,700.35", lines[1].strip())
 
-
     @patch('pv_simulator.out.datetime')
     def test_with_existing_file(self, mocked_date):
         mocked_date.today().year = self.YEAR
@@ -96,9 +96,10 @@ class TestCSVFile(unittest.TestCase):
         with open(file_name, 'w') as file:
             file.writelines("A line\n")
 
-        with pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test") as file:
-            file.out(pv_simulator.out.OutMsg(time_s=1549, pv_power_value_kw=0.2,
-                                             meter_power_value_w=500.35, sum_meter_pv_w=700.35))
+        file = pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test")
+        file.out(pv_simulator.out.OutMsg(time_s=1549, pv_power_value_kw=0.2,
+                                         meter_power_value_w=500.35, sum_meter_pv_w=700.35))
+        del file
 
         with open(file_name, "r") as file:
             lines = file.readlines()
