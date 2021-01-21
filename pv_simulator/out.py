@@ -4,6 +4,7 @@ Author: Ludovic Mouline
 """
 from __future__ import annotations
 
+import os
 from logging import info
 from datetime import datetime
 import csv
@@ -32,6 +33,7 @@ class LoggerOutput(Output):
 
     def out(self, msg: OutMsg) -> None:
         info(msg)
+
 
 
 class CSVFileOutput(Output):
@@ -65,16 +67,17 @@ class CSVFileOutput(Output):
 
         self.__open()
 
+    def __csv_file_name(self, date):
+        return self.base_file_name + self.FILE_NAME_SEP + str(date.year) + self.FILE_NAME_SEP + str(date.month) \
+               + self.FILE_NAME_SEP + str(date.day) + self.FILE_EXT
+
     def __today_file_name(self) -> str:
         """
         Return the formatted file name that is:
         <BASE_FILE_NAME>_YYYY_M_D
         :return: the formatted file name for the current day
         """
-        today = datetime.today()
-        return self.base_file_name + self.FILE_NAME_SEP + str(today.year) + self.FILE_NAME_SEP + str(
-            today.month) \
-               + self.FILE_NAME_SEP + str(today.day) + self.FILE_EXT
+        return self.__csv_file_name(datetime.today())
 
     def __open(self, today_file_name: str = None) -> None:
         """
@@ -95,11 +98,14 @@ class CSVFileOutput(Output):
         if not file_exist:
             self.writer.writeheader()
 
+        self.current_file.flush()
+
     def __close(self) -> None:
         """
         Close the current file
         """
         if self.current_file is not None:
+            self.current_file.flush()
             self.current_file.close()
 
     def __del__(self):
@@ -113,10 +119,8 @@ class CSVFileOutput(Output):
 
         :param msg: information to add in the CSV file
         """
-        today = datetime.today()
 
-        file_name = self.base_file_name + self.FILE_NAME_SEP + str(today.year) + self.FILE_NAME_SEP + str(today.month) \
-                    + self.FILE_NAME_SEP + str(today.day) + self.FILE_EXT
+        file_name = self.__today_file_name()
 
         if file_name != self.today_file_name:
             # Day has changed from the previous call
@@ -124,3 +128,4 @@ class CSVFileOutput(Output):
             self.__open(file_name)
 
         self.writer.writerow(msg)
+        self.current_file.flush()
