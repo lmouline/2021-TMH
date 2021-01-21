@@ -108,3 +108,6 @@ class Consumer(Broker):
         """
         self.channel.start_consuming()
 
+    def stop_consuming(self):
+        self.channel.stop_consuming()
+
