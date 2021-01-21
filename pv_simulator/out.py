@@ -12,6 +12,7 @@ from typing import TypedDict
 
 
 class OutMsg(TypedDict):
+    meter_id: str
     time_s: int
     meter_power_value_w: float
     pv_power_value_kw: float

@@ -76,7 +76,7 @@ class PVService:
             sum_power_w = pv_power_value * 1_000 + message["value"]
 
             for output in outputs:
-                output.out(OutMsg(time_s=message["time_s"], meter_power_value_w=message["value"],
+                output.out(OutMsg(meter_id=meter_id, time_s=message["time_s"], meter_power_value_w=message["value"],
                                   pv_power_value_kw=pv_power_value, sum_meter_pv_w=sum_power_w))
 
         self.consumer.bind_messages(meter_id, callback)

@@ -9,7 +9,7 @@ from os import path, remove
 class TestLoggerOutPut(unittest.TestCase):
     @patch('pv_simulator.out.info')
     def test(self, mocked):
-        msg = pv_simulator.out.OutMsg(time_s=1547, pv_power_value_kw=2.5,
+        msg = pv_simulator.out.OutMsg(meter_id="Meter ID", time_s=1547, pv_power_value_kw=2.5,
                                       meter_power_value_w=8745.65, sum_meter_pv_w=11245.65)
         pv_simulator.out.LoggerOutput().out(msg)
         mocked.assert_called_with(msg)
@@ -46,7 +46,7 @@ class TestCSVFile(unittest.TestCase):
         with open(file_name, "r") as file:
             lines = file.readlines()
             self.assertEqual(1, len(lines))
-            self.assertEqual("time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
+            self.assertEqual("meter_id,time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
 
     @patch('pv_simulator.out.datetime')
     def test_changing_day(self, mocked_date):
@@ -55,14 +55,14 @@ class TestCSVFile(unittest.TestCase):
         mocked_date.today().day = self.DAY + 1
 
         file = pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test")
-        file.out(pv_simulator.out.OutMsg(time_s=1547, pv_power_value_kw=2.5,
+        file.out(pv_simulator.out.OutMsg(meter_id="Meter ID", time_s=1547, pv_power_value_kw=2.5,
                                          meter_power_value_w=8745.65, sum_meter_pv_w=11245.65))
-        file.out(pv_simulator.out.OutMsg(time_s=1548, pv_power_value_kw=2.4,
+        file.out(pv_simulator.out.OutMsg(meter_id="Meter ID", time_s=1548, pv_power_value_kw=2.4,
                                          meter_power_value_w=8600.54, sum_meter_pv_w=11000.54))
 
         mocked_date.today().day = self.DAY + 2
 
-        file.out(pv_simulator.out.OutMsg(time_s=1549, pv_power_value_kw=0.2,
+        file.out(pv_simulator.out.OutMsg(meter_id="Meter ID", time_s=1549, pv_power_value_kw=0.2,
                                          meter_power_value_w=500.35, sum_meter_pv_w=700.35))
         del file
 
@@ -75,15 +75,15 @@ class TestCSVFile(unittest.TestCase):
         with open(file1, "r") as file:
             lines = file.readlines()
             self.assertEqual(3, len(lines))
-            self.assertEqual("time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
-            self.assertEqual("1547,8745.65,2.5,11245.65", lines[1].strip())
-            self.assertEqual("1548,8600.54,2.4,11000.54", lines[2].strip())
+            self.assertEqual("meter_id,time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
+            self.assertEqual("Meter ID,1547,8745.65,2.5,11245.65", lines[1].strip())
+            self.assertEqual("Meter ID,1548,8600.54,2.4,11000.54", lines[2].strip())
 
         with open(file2, "r") as file:
             lines = file.readlines()
             self.assertEqual(2, len(lines))
-            self.assertEqual("time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
-            self.assertEqual("1549,500.35,0.2,700.35", lines[1].strip())
+            self.assertEqual("meter_id,time_s,meter_power_value_w,pv_power_value_kw,sum_meter_pv_w", lines[0].strip())
+            self.assertEqual("Meter ID,1549,500.35,0.2,700.35", lines[1].strip())
 
     @patch('pv_simulator.out.datetime')
     def test_with_existing_file(self, mocked_date):
@@ -97,7 +97,7 @@ class TestCSVFile(unittest.TestCase):
             file.writelines("A line\n")
 
         file = pv_simulator.out.CSVFileOutput(f"{self.TEST_FILE_FOLDER}{os.sep}test")
-        file.out(pv_simulator.out.OutMsg(time_s=1549, pv_power_value_kw=0.2,
+        file.out(pv_simulator.out.OutMsg(meter_id="Meter ID", time_s=1549, pv_power_value_kw=0.2,
                                          meter_power_value_w=500.35, sum_meter_pv_w=700.35))
         del file
 
@@ -105,6 +105,6 @@ class TestCSVFile(unittest.TestCase):
             lines = file.readlines()
             self.assertEqual(2, len(lines))
             self.assertEqual("A line", lines[0].strip())
-            self.assertEqual("1549,500.35,0.2,700.35", lines[1].strip())
+            self.assertEqual("Meter ID,1549,500.35,0.2,700.35", lines[1].strip())
 
         remove(file_name)
