@@ -1,6 +1,6 @@
 import json
 import unittest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 from pv_simulator.meter import Meter, MeterFactory, MeterValMsg
 

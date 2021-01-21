@@ -8,7 +8,8 @@ import json
 from time import localtime
 from math import cos, fabs
 from random import random
-from pv_simulator.broker import Consumer
+
+import pv_simulator.broker
 from pv_simulator.out import Output, OutMsg
 
 # Below constants are used to mock a PV power value
@@ -54,7 +55,7 @@ def _rand_power(time_s: int, factor: float, shift_noise: float) -> float:
     """
     _, _, _, hour, *_ = localtime(time_s)
 
-    if _SUN_RISE_H > hour > _SUN_SET_H:
+    if hour < _SUN_RISE_H or hour >= _SUN_SET_H:
         return 0
 
     return factor * cos(time_s * _PERIOD_FACTOR_SHIFT - shift_noise) + _power_noise()
@@ -63,15 +64,15 @@ def _rand_power(time_s: int, factor: float, shift_noise: float) -> float:
 class PVService:
     """Class to encapsulate the behaviour of a PV service"""
 
-    def __init__(self, meter_id: str, consumer: Consumer, *outputs: Output):
-        self._factor = random() * _MAX_POWER_KW
-        self._shift_noise = _shift_noise()
+    def __init__(self, meter_id: str, consumer: pv_simulator.broker.Consumer, *outputs: Output):
+        factor = random() * _MAX_POWER_KW
+        shift_noise = _shift_noise()
         self.consumer = consumer
 
         def callback(ch, method, properties, body):
             message = json.loads(body)  # Message is json string build from the meter.MeterValMsg typed dictionary
 
-            pv_power_value = self.read_power(message["time_s"])
+            pv_power_value = _rand_power(message["time_s"], factor, shift_noise)
             sum_power_w = pv_power_value * 1_000 + message["value"]
 
             for output in outputs:
@@ -82,6 +83,3 @@ class PVService:
 
     def __del__(self):
         self.consumer.stop_consuming()
-
-    def read_power(self, time_s) -> float:
-        return _rand_power(time_s, self._factor, self._shift_noise)
