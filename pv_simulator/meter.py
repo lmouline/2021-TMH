@@ -46,7 +46,7 @@ class MeterFactory:
             MeterFactory()
         return MeterFactory.__instance
 
-    def new_meter(self, broker: pv_simulator.broker.Producer):
+    def new_meter(self, broker: pv_simulator.broker.Producer) -> Meter:
         m_id = self.__BASE_ID + str(self.__id_next)
         self.__id_next = self.__id_next + 1
         return Meter(m_id, broker)

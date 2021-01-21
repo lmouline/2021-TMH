@@ -2,21 +2,42 @@ import logging
 import os
 import sys
 import time
+import argparse
+from pv_simulator.broker import Producer, Broker
+from pv_simulator.meter import MeterFactory, Meter
 
-from pv_simulator.broker import Producer
-from pv_simulator.meter import MeterFactory
+args = sys.argv[1:]
+
+arg_parser = argparse.ArgumentParser(description="Demonstration code for the meter service. "
+                                                 "Please make sure to have a running RabbitMQ running.")
+arg_parser.add_argument("-conf", "--configuration-file", type=str, help=f"path of the broker configuration file. "
+                                                                        f"Default: {Broker.DEFAULT_CFG_FILE_NAME}")
+arg_parser.add_argument("-nb", "--nb-meter", type=int, help="number of meters that should be created. Default: 1")
+options = arg_parser.parse_args()
+
+nb_meter = options.nb_meter if options.nb_meter is not None else 1
+conf_file = options.configuration_file if options.configuration_file is not None else Broker.DEFAULT_CFG_FILE_NAME
 
 logging.getLogger().setLevel(logging.INFO)
 
-broker = Producer("broker-cfg.ini")
-meter = MeterFactory.instance().new_meter(broker)
+broker = Producer(conf_file)
+
+meters: [Meter] = []
+ids = []
+for i in range(nb_meter):
+    m = MeterFactory.instance().new_meter(broker)
+    meters.append(m)
+    ids.append(m.meter_id)
+
+logging.info(f"Meter created: {ids}")
 
 try:
     while True:
-        meter.send_consumption()
+        for m in meters:
+            m.send_consumption()
         time.sleep(1)
 except KeyboardInterrupt:
-    print('Interrupted')
+    logging.info("Demo stopped by the user. Channels will be destroyed.")
     try:
         sys.exit(0)
     except SystemExit:
