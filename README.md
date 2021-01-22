@@ -97,3 +97,5 @@ The CSV file contains five columns:
 
 **Disclaimer**: we assume here that the measurement of the meter and PV service are perfectly synchronous. 
 This is why the final timestamps is the one of the meter. This is, of course, a simplification of a real case.
+
+You can stop the service at anytime with `Ctrl-C`.
