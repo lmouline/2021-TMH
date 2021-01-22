@@ -14,9 +14,9 @@ class MeterTest(unittest.TestCase):
 
         meter_factory = MeterFactory.instance()
 
-        self.assertEqual("Meter 0", meter_factory.new_meter(mock_broker).meter_id)
-        self.assertEqual("Meter 1", meter_factory.new_meter(mock_broker).meter_id)
-        self.assertEqual("Meter 2", meter_factory.new_meter(mock_broker).meter_id)
+        self.assertEqual("Meter_0", meter_factory.new_meter(mock_broker).meter_id)
+        self.assertEqual("Meter_1", meter_factory.new_meter(mock_broker).meter_id)
+        self.assertEqual("Meter_2", meter_factory.new_meter(mock_broker).meter_id)
 
     @patch("pv_simulator.meter.Meter.read_consumption")
     @patch("pv_simulator.meter.logging")
@@ -29,7 +29,7 @@ class MeterTest(unittest.TestCase):
         mock_time.time.return_value = time
         mock_broker = Mock()
 
-        expected_msg = MeterValMsg(meter_id="Meter 0", value=v, time_s=time)
+        expected_msg = MeterValMsg(meter_id="Meter_0", value=v, time_s=time)
         expected_to_send = json.dumps(expected_msg)
 
         MeterFactory.__instance = None
