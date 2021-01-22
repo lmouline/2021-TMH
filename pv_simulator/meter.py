@@ -1,8 +1,8 @@
 """
 This module implements a meter service.
-A meter service can be used to read a consumption value, and send it to a predefined broker.
+A meter service reads a consumption value and sends it to a predefined broker.
 
-The current implementation mock the reading by generating a uniformly distributed value between 0 and 9000.
+The current implementation mocks the reading by generating a uniformly distributed value between 0 and 9000.
 
 Author: Ludovic Mouline
 """
@@ -22,7 +22,7 @@ DELAY_MS = 1000
 
 
 class MeterValMsg(TypedDict):
-    """Type of the message sent to trough the broker."""
+    """Type of the message sent through the broker."""
     meter_id: str
     value: float
     time_s: int
@@ -61,7 +61,7 @@ class Meter:
     """
 
     def __init__(self, m_id: str, broker: pv_simulator.broker.Producer):
-        """The constructor should not be directly called. It is recommended to use the factory."""
+        """You should not directly call the constructor. We recommended using the factory."""
         self.meter_id = m_id
         self.broker = broker
         self.broker.open_channel(self.meter_id)

@@ -1,6 +1,6 @@
-"""This module is responsible of the PV service.
+"""This module is responsible for the PV service.
 
-It consumes a meter value, read its own power value, add the two and wrote to an output (see out module).
+It consumes a meter value, reads its own power value, adds the two and writes it to an output (see out module).
 
 Author: Ludovic Mouline
 """
@@ -13,14 +13,14 @@ import pv_simulator.broker
 from pv_simulator.out import Output, OutMsg
 
 # Below constants are used to mock a PV power value
-# The value should not exceed the _MAX_POWER_KW, and we assume that it's value is always equals to 0 between _SUN_RISE_H
+# The value should not exceed the _MAX_POWER_KW, and we assume that its value always equals 0 between _SUN_RISE_H
 # and _SUN_SET_H.
 # For the day, to reproduce a belly-curve, we used the cosine function with shifting parameters.
 # These parameters have been experimentally defined to represent values strictly superior to 0.
 # Noise parameters are here to avoid a "perfect" curve.
 #
 # The idea was not to represent a realistic function but something that can get closed to that.
-# One may try to reproduce this with other functions (sine, gaussian distribution, gamma distribution, ...).
+# One may try to reproduce this with other functions (sine, Gaussian distribution, gamma distribution, ...).
 _MAX_POWER_KW = 4
 
 _POWER_NOISE = 0.01
@@ -48,7 +48,7 @@ def _shift_noise() -> float:
 
 
 def _rand_power(time_s: int, factor: float, shift_noise: float) -> float:
-    """Mock the PV power reader by generating a values with the following constraints:
+    """Mock the PV power reader by generating a value with the following constraints:
          - 0 if the current time is less than _SUN_RISE_H or greater than _SUN_SET_H
          - value of the cos(x), where x is the time of the day, we performed shifting operation and modification
          of the period to have only one "positive bell" (values >= 0) between _SUN_RISE_H and _SUN_SET_H
@@ -62,7 +62,7 @@ def _rand_power(time_s: int, factor: float, shift_noise: float) -> float:
 
 
 class PVService:
-    """Class to encapsulate the behaviour of a PV service"""
+    """Encapsulates the behaviour of a PV service"""
 
     def __init__(self, meter_id: str, consumer: pv_simulator.broker.Consumer, *outputs: Output):
         factor = random() * _MAX_POWER_KW

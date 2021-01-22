@@ -1,4 +1,5 @@
-""" A module that is responsible of 'output' service
+""" A module that is responsible for outputting the result of the simulator in a file, the console,
+or any other resource.
 
 Author: Ludovic Mouline
 """
@@ -27,11 +28,10 @@ class Output:
 
 
 class LoggerOutput(Output):
-    """This output logs the message as it in the console."""
+    """This output logs the message like it in the console."""
 
     def out(self, msg: OutMsg) -> None:
         info(msg)
-
 
 
 class CSVFileOutput(Output):
@@ -41,18 +41,11 @@ class CSVFileOutput(Output):
     This approach keeps the file of the current day open for the full day. This is to prevent opening and closing
     too often.
 
-    Warning: this method does not lock the file. Therefore, it can be modified or (worst) deleted by an external
-    process.
+    Warning 1: this method does not lock the file. Therefore, it can be modified or (worst) deleted by an external
+    process. It may result in unexpected behaviour.
 
-    Warning 1: This method is supposed to be used on globally distributed system. The definition of the day is the
-    "local current day".
-
-    This class should be use with the 'with' statement as following:
-
-    '''
-    with CSVFileOutput("test2") as out:
-    '''
-
+    Warning 2: This method is not supposed to be used in a globally distributed system. The definition of the day is the
+    "current local day".
     """
     FILE_NAME_SEP = '-'
     FILE_EXT = '.csv'
@@ -71,7 +64,7 @@ class CSVFileOutput(Output):
 
     def __today_file_name(self) -> str:
         """
-        Return the formatted file name that is:
+        Returns the formatted file name that is:
         <BASE_FILE_NAME>_YYYY_M_D
         :return: the formatted file name for the current day
         """
@@ -79,7 +72,7 @@ class CSVFileOutput(Output):
 
     def __open(self, today_file_name: str = None) -> None:
         """
-        Function that opens for writing the given file, and closes the current file if any
+        Opens for writing the given file and closes the current file if any
 
         :param today_file_name: name of the file to open
         """
@@ -100,19 +93,19 @@ class CSVFileOutput(Output):
 
     def __close(self) -> None:
         """
-        Close the current file
+        Closes the current file
         """
         if self.current_file is not None:
             self.current_file.flush()
             self.current_file.close()
 
     def __del__(self):
-        """Close the current file"""
+        """Closes the current file"""
         self.__close()
 
     def out(self, msg: OutMsg) -> None:
         """
-        Append the message content to the current CSV file.
+        Appends the message content to the current CSV file.
         If the day has changed since the previous call, the function closes the current file and creates a new one.
 
         :param msg: information to add in the CSV file

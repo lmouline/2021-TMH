@@ -1,6 +1,6 @@
 """This module implements the producer connection to a RabbitMQ broker.
 
-The configuration should be defined in a <FILE_NAME>.ini file. It should contains a section called "broker", with at
+The configuration should be defined in a <FILE_NAME>.ini file. It should contain a section called "broker", with at
 most two values: host (string) and a port number (int). One, or all, can be omitted. In such a case,
 default values will be used: 'localhost' for the host and 5672 for the port.
 
@@ -11,7 +11,7 @@ Example:
     host = localhost
     port = 5672
 
-This module do not support more complex configuration (SSL, virtual host, login/password).
+This module does not support more complex configuration (SSL, virtual host, login/password).
 
 Author: Ludovic Mouline
 """
@@ -42,7 +42,7 @@ class Broker:
         self.__init_broker(config_file)
 
     def __init_broker(self, config_file: str) -> None:
-        """Initialise the producer connection following the given configuration file. If no file is given or not well
+        """Initialises the producer connection following the given configuration file. If no file is given or not well
         written, the default values are used. A warning message is printed if the "broker" section or the file
         is omitted.
 
