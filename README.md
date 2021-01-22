@@ -6,6 +6,8 @@ This repository contains my implementation of the PhotoVoltaic (PV) simulator ch
 - one that mocks a meter by sending random consumption values between 0 and 9000 W through a RabbiMQ broker,
 - one that mocks a PV service by consuming one meter message, generating a random PV power value, adding the two, and writing the result in a file.
 
+You can find the details of this challenge in the `PV Simulator Challenge.pdf` file.
+
 # Requirements
 
 - A running [RabbitMQ](https://www.rabbitmq.com/) server
