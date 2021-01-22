@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 
-import pv_simulator
 import pv_simulator.pv_service as pv_service
 from pv_simulator.broker import Consumer, Broker
 import pv_simulator.out as out
@@ -14,7 +13,7 @@ arg_parser = argparse.ArgumentParser(description="Demonstration code for the PV 
                                                  "Please make sure to have a running RabbitMQ instance.")
 arg_parser.add_argument("-conf", "--configuration-file", type=str, help=f"path of the broker configuration file. "
                                                                         f"Default: {Broker.DEFAULT_CFG_FILE_NAME}")
-arg_parser.add_argument("-ids", "--meter_ids", nargs="+", help="IDs of the meter (separated by a space).",
+arg_parser.add_argument("-ids", "--meter-ids", nargs="+", help="IDs of the meter (separated by a space).",
                         required=True)
 options = arg_parser.parse_args()
 
