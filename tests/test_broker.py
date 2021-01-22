@@ -69,7 +69,7 @@ class TestProducer(NoLoggerTest):
         pika_mock.BlockingConnection().channel().queue_declare.assert_called_once_with(queue=mock_meter.meter_id)
         pika_mock.BlockingConnection().channel().basic_publish.assert_called_once_with(exchange='',
                                                                                        routing_key=mock_meter.meter_id,
-                                                                                       body=msg)
+                                                                                       body=bytes("False msg", "utf-8"))
 
 
 class TestConsumer(NoLoggerTest):

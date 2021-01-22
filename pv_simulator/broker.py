@@ -24,6 +24,8 @@ from typing import TYPE_CHECKING, Callable
 if TYPE_CHECKING:
     import pv_simulator.meter
 
+_ENCODING = 'utf-8'
+
 
 class Broker:
     """Class that handles the connexion to a broker"""
@@ -91,7 +93,7 @@ class Producer(Broker):
 
     def send_msg(self, meter: pv_simulator.meter.Meter, msg: str) -> None:
         self.open_channel(meter.meter_id)
-        self.channel.basic_publish(exchange='', routing_key=meter.meter_id, body=bytes(msg, 'utf-8'))
+        self.channel.basic_publish(exchange='', routing_key=meter.meter_id, body=bytes(msg, _ENCODING))
 
 
 class Consumer(Broker):
