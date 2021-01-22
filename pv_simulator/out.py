@@ -3,8 +3,6 @@
 Author: Ludovic Mouline
 """
 from __future__ import annotations
-
-import os
 from logging import info
 from datetime import datetime
 import csv
