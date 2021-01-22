@@ -79,35 +79,35 @@ class Broker:
         if self.connection is not None:
             self.connection.close()
 
-    def open_channel(self, meter_id: str):
+    def open_channel(self, meter_id: str) -> None:
         self.channel.queue_declare(queue=meter_id)
 
-    def del_channel(self, meter_id: str):
+    def del_channel(self, meter_id: str) -> None:
         self.channel.queue_delete(queue=meter_id)
 
 
 class Producer(Broker):
     """Class that handles the connection to the broker by the meter (producer)."""
 
-    def send_msg(self, meter: pv_simulator.meter.Meter, msg: str):
+    def send_msg(self, meter: pv_simulator.meter.Meter, msg: str) -> None:
         self.open_channel(meter.meter_id)
-        self.channel.basic_publish(exchange='', routing_key=meter.meter_id, body=msg)
+        self.channel.basic_publish(exchange='', routing_key=meter.meter_id, body=bytes(msg, 'utf-8'))
 
 
 class Consumer(Broker):
     """Class that handles the connection to the broker by the PV service (consumer)"""
 
-    def bind_messages(self, meter_id: str, callback: Callable):
+    def bind_messages(self, meter_id: str, callback: Callable) -> None:
         self.open_channel(meter_id)
         self.channel.basic_consume(queue=meter_id, auto_ack=True, on_message_callback=callback)
 
-    def start_consuming(self):
+    def start_consuming(self) -> None:
         """!!Blocking method!!
         Starts consuming incoming messages in the broker. Should be called after all the messages bindings have been
         performed with the bind_message method.
         """
         self.channel.start_consuming()
 
-    def stop_consuming(self):
+    def stop_consuming(self) -> None:
         self.channel.stop_consuming()
 

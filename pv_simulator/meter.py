@@ -41,7 +41,7 @@ class MeterFactory:
         self.__id_next = 0
 
     @staticmethod
-    def instance():
+    def instance() -> MeterFactory:
         if MeterFactory.__instance is None:
             MeterFactory()
         return MeterFactory.__instance

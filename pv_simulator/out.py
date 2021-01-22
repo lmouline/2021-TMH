@@ -58,7 +58,7 @@ class CSVFileOutput(Output):
 
         self.__open()
 
-    def __csv_file_name(self, date):
+    def __csv_file_name(self, date) -> str:
         return self.base_file_name + self.FILE_NAME_SEP + str(date.year) + self.FILE_NAME_SEP + str(date.month) \
                + self.FILE_NAME_SEP + str(date.day) + self.FILE_EXT
 
