@@ -4,7 +4,7 @@ PV Simulator  Challenge - TMH Code Assessment
 This repository contains my implementation of the PhotoVoltaic (PV) simulator challenge. It contains two services:
 
 - one that mocks a meter by sending random consumption values between 0 and 9000 W through a RabbiMQ broker,
-- one that mocks a PV service by consuming one meter message, generating a random PV power value, adding the two, and writing the result in a file.
+- one that mocks a PV service by consuming messages from one meter, generating a random PV power value, adding the two, and writing the result in a file.
 
 You can find the details of this challenge in the `PV Simulator Challenge.pdf` file.
 
@@ -23,17 +23,17 @@ The repository contains two main scripts to launch the two services:
 - `demo_meter.py` to run the meter service,
 - `demo_pv_service.py` to run the PV service.
 
-In two different terminals, you will have to execute these scripts. You can add the `-h` or `--help` option to get more information regarding the usage of these scripts.
-Below, we detail a bit more the procedure.
+In two different terminals, you will have to execute these scripts. You can add the `-h` or `--help` option to get more information regarding these scripts' usage.
+Below, we detail a bit more about the procedure.
 
 ## 1. Start your RabbitMQ instance
 
 Before executing any script, you should run an instance of RabbitMQ as described in their [documentation](https://www.rabbitmq.com/download.html).
 
-**Warning:** The current implementation do not support any credentials for the connection to the broker.
+**Warning:** The current implementation does not support any credentials for the connection to the broker.
 Please be sure that the script will be able to connect to the broker with only its IP address (or hostname) and the port.
 
-When the instance is running without any error, you can report the configuration in a `.ini` file.
+When the instance runs without any error, you can report the configuration in a `.ini` file.
 The configuration file should contain a `broker` section as follows:
 
 ````
@@ -46,10 +46,10 @@ If not provided, the default values are `localhost` for the host and 5672 for th
 
 ## 2. Install required packages
 
-This implementation is based on ony one external library: [pika](https://pypi.org/project/pika/) v.1.1.0, one client implementation of the RabbitMQ broker.
+This implementation is based on only one external library: [pika](https://pypi.org/project/pika/) v.1.1.0, one client implementation of the RabbitMQ broker.
 You can install it manually or using the `requirements.txt` file: `pip install -r requirements.txt`.
 
-*(If you give a look at the `requirements.txt` file, you will see another dependency. 
+*(If you look at the `requirements.txt` file, you will see another dependency. 
 This dependency is only used in the test suite.)*
 
 ## 3. Execute the meter service
@@ -58,7 +58,7 @@ You can start the meter service by executing the `demo_meter.py` script.
 It has three options:
 
 - `-h` or `--help` to print the usage,
-- `-conf` or `--configuration-file` to define the path of the broker configuration file. The default value is `broker.ini`,
+- `-conf` or `--configuration-file` to define the broker configuration file's path. The default value is `broker.ini`,
 - `-nb` or `--nb-meter` to define the number of meters to mock. Default value is 1. If the value is negative or 0, we silently choose the default value.
 
 In the logs printed in the console, you will see the id of the meters created as follows (here for 3 meters):
@@ -67,13 +67,13 @@ In the logs printed in the console, you will see the id of the meters created as
 
 RabbitMQ is configured with the default exchange.
 We use the meter ids as routing keys.
-The PV service need to know the meter ids to start consuming the channel of the meter it is interested in.
+The PV service needs to know the meter ids to start consuming the channel of the meter it is interested in.
 The meter ids are on the form: `Meter_<COUNT>`, with count starting at 0 and being increased at every meter creation.
 
-You can stop the service at anytime with `Ctrl-C`.
+You can stop the service at any time with `Ctrl-C`.
 
-**Warning:** RabbitMQ channels are destroyed when the script ends. 
-Do not stop it before executing the PV service, or the messages will not be consumed by the PV service.
+**Warning:** RabbitMQ channels are destroyed when the script ends.
+If you stop it before executing the PV service, the PV service will not consume the messages.
 
 ## 4. Execute the PV service
 
@@ -81,13 +81,13 @@ You can start the PV service by executing the `demo_pv_service.py` script.
 It has two options:
 
 - `-h` or `--help` to print the usage,
-- `-conf` or `--configuration-file` to define the path of the broker configuration file. The default value is `broker.ini`,
-- `-ids` or `--meter-ids` to define the channel to consume. It expects a **space separated list** of IDs with at least one element.
+- `-conf` or `--configuration-file` to define the broker configuration file's path. The default value is `broker.ini`,
+- `-ids` or `--meter-ids` to define the channel to consume. It expects a **space-separated list** of IDs with at least one element.
 
-The service will then instantiate any many PV services as meter ids: a PV service consume messages of exactly one meter.
+The service will then instantiate as many PV services as meter ids: a PV service consumes messages of exactly one meter.
 A CSV file will then be created for each meter with the following name: `<METER_ID>-<YEAR>-<MONTH>-<DAY>.csv`.
 If it already exists, the result of the PV service will be appended to the file. 
-**Warning**: if the file already exists, we do not check if the CSV headers corresponds to the data we put.
+**Warning**: if the file already exists, we do not check if the CSV headers correspond to the data we put.
 
 The CSV file contains five columns:
 
@@ -97,10 +97,10 @@ The CSV file contains five columns:
 - `pv_power_value_kw`: power value of the PV service, in kilo-Watt
 - `sum_meter_pv_w`: sum of the two power values in Watt
 
-**Disclaimer**: we assume here that the measurement of the meter and PV service are perfectly synchronous. 
-This is why the final timestamps is the one of the meter. This is, of course, a simplification of a real case.
+**Disclaimer**: we assume that the measurement of the meter and PV service are perfectly synchronous. 
+It is why the final timestamp is the one of the meter. That is, of course, a simplification of a real case.
 
-You can stop the service at anytime with `Ctrl-C`.
+You can stop the service at any time with `Ctrl-C`.
 
 # How to run the tests?
 
