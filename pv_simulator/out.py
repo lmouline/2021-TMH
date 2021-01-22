@@ -47,8 +47,8 @@ class CSVFileOutput(Output):
     Warning 2: This method is not supposed to be used in a globally distributed system. The definition of the day is the
     "current local day".
     """
-    FILE_NAME_SEP = '-'
-    FILE_EXT = '.csv'
+    _FILE_NAME_SEP = '-'
+    _FILE_EXT = '.csv'
 
     def __init__(self, base_file_name: str):
         self.base_file_name = base_file_name
@@ -56,28 +56,28 @@ class CSVFileOutput(Output):
         self.writer = None
         self.today_file_name = None
 
-        self.__open()
+        self._open()
 
-    def __csv_file_name(self, date) -> str:
-        return self.base_file_name + self.FILE_NAME_SEP + str(date.year) + self.FILE_NAME_SEP + str(date.month) \
-               + self.FILE_NAME_SEP + str(date.day) + self.FILE_EXT
+    def _csv_file_name(self, date) -> str:
+        return self.base_file_name + self._FILE_NAME_SEP + str(date.year) + self._FILE_NAME_SEP + str(date.month) \
+               + self._FILE_NAME_SEP + str(date.day) + self._FILE_EXT
 
-    def __today_file_name(self) -> str:
+    def _today_file_name(self) -> str:
         """
         Returns the formatted file name that is:
         <BASE_FILE_NAME>_YYYY_M_D
         :return: the formatted file name for the current day
         """
-        return self.__csv_file_name(datetime.today())
+        return self._csv_file_name(datetime.today())
 
-    def __open(self, today_file_name: str = None) -> None:
+    def _open(self, today_file_name: str = None) -> None:
         """
         Opens for writing the given file and closes the current file if any
 
         :param today_file_name: name of the file to open
         """
         if today_file_name is None:
-            self.today_file_name = self.__today_file_name()
+            self.today_file_name = self._today_file_name()
         else:
             self.today_file_name = today_file_name
 
@@ -91,7 +91,7 @@ class CSVFileOutput(Output):
 
         self.current_file.flush()
 
-    def __close(self) -> None:
+    def _close(self) -> None:
         """
         Closes the current file
         """
@@ -101,7 +101,7 @@ class CSVFileOutput(Output):
 
     def __del__(self):
         """Closes the current file"""
-        self.__close()
+        self._close()
 
     def out(self, msg: OutMsg) -> None:
         """
@@ -111,12 +111,12 @@ class CSVFileOutput(Output):
         :param msg: information to add in the CSV file
         """
 
-        file_name = self.__today_file_name()
+        file_name = self._today_file_name()
 
         if file_name != self.today_file_name:
             # Day has changed from the previous call
-            self.__close()
-            self.__open(file_name)
+            self._close()
+            self._open(file_name)
 
         self.writer.writerow(msg)
         self.current_file.flush()

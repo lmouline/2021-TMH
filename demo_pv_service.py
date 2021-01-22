@@ -12,12 +12,12 @@ logging.getLogger().setLevel(logging.INFO)
 arg_parser = argparse.ArgumentParser(description="Demonstration code for the PV service. "
                                                  "Please make sure to have a running RabbitMQ instance.")
 arg_parser.add_argument("-conf", "--configuration-file", type=str, help=f"path of the broker configuration file. "
-                                                                        f"Default: {Broker.DEFAULT_CFG_FILE_NAME}")
+                                                                        f"Default: {Broker._DEFAULT_CFG_FILE_NAME}")
 arg_parser.add_argument("-ids", "--meter-ids", nargs="+", help="IDs of the meter (separated by a space).",
                         required=True)
 options = arg_parser.parse_args()
 
-conf_file = options.configuration_file if options.configuration_file is not None else Broker.DEFAULT_CFG_FILE_NAME
+conf_file = options.configuration_file if options.configuration_file is not None else Broker._DEFAULT_CFG_FILE_NAME
 
 consumer = Consumer(conf_file)
 pvs: [pv_service.PVService] = []

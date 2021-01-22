@@ -11,12 +11,12 @@ logging.getLogger().setLevel(logging.INFO)
 arg_parser = argparse.ArgumentParser(description="Demonstration code for the meter service. "
                                                  "Please make sure to have a running RabbitMQ instance.")
 arg_parser.add_argument("-conf", "--configuration-file", type=str, help=f"path of the broker configuration file. "
-                                                                        f"Default: {Broker.DEFAULT_CFG_FILE_NAME}")
+                                                                        f"Default: {Broker._DEFAULT_CFG_FILE_NAME}")
 arg_parser.add_argument("-nb", "--nb-meter", type=int, help="number of meters that should be created. Default: 1")
 options = arg_parser.parse_args()
 
 nb_meter = options.nb_meter if options.nb_meter is not None and options.nb_meter > 0 else 1
-conf_file = options.configuration_file if options.configuration_file is not None else Broker.DEFAULT_CFG_FILE_NAME
+conf_file = options.configuration_file if options.configuration_file is not None else Broker._DEFAULT_CFG_FILE_NAME
 
 broker = Producer(conf_file)
 

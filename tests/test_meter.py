@@ -7,7 +7,7 @@ from pv_simulator.meter import Meter, MeterFactory, MeterValMsg
 
 class MeterTest(unittest.TestCase):
     def tearDown(self) -> None:
-        MeterFactory._MeterFactory__instance = None
+        MeterFactory._instance = None
 
     def test_creation(self):
         mock_broker = Mock()

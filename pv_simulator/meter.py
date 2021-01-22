@@ -16,9 +16,8 @@ from typing import TypedDict, TYPE_CHECKING
 if TYPE_CHECKING:
     import pv_simulator.broker
 
-MIN_CONS = 0
-MAX_CONS = 9000
-DELAY_MS = 1000
+_MIN_CONS = 0
+_MAX_CONS = 9000
 
 
 class MeterValMsg(TypedDict):
@@ -29,22 +28,22 @@ class MeterValMsg(TypedDict):
 
 
 class MeterFactory:
-    __instance = None
+    _instance = None
 
     def __init__(self):
-        if MeterFactory.__instance is not None:
+        if MeterFactory._instance is not None:
             raise Exception("This class is a singleton!")
         else:
-            MeterFactory.__instance = self
+            MeterFactory._instance = self
 
         self.__BASE_ID = "Meter_"
         self.__id_next = 0
 
     @staticmethod
     def instance() -> MeterFactory:
-        if MeterFactory.__instance is None:
+        if MeterFactory._instance is None:
             MeterFactory()
-        return MeterFactory.__instance
+        return MeterFactory._instance
 
     def new_meter(self, broker: pv_simulator.broker.Producer) -> Meter:
         m_id = self.__BASE_ID + str(self.__id_next)
@@ -67,7 +66,7 @@ class Meter:
         self.broker.open_channel(self.meter_id)
 
     def read_consumption(self) -> float:
-        return uniform(MIN_CONS, MAX_CONS)
+        return uniform(_MIN_CONS, _MAX_CONS)
 
     def send_consumption(self) -> None:
         v = self.read_consumption()

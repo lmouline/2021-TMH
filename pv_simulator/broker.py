@@ -29,21 +29,21 @@ _ENCODING = 'utf-8'
 
 class Broker:
     """Class that handles the connexion to a broker"""
-    DEFAULT_HOST = "localhost"
-    DEFAULT_PORT = 5672
-    DEFAULT_CFG_FILE_NAME = "broker.ini"
+    _DEFAULT_HOST = "localhost"
+    _DEFAULT_PORT = 5672
+    _DEFAULT_CFG_FILE_NAME = "broker.ini"
 
-    SECTION_NAME = "broker"
-    CFG_HOST = "host"
-    CFG_PORT = "port"
+    _SECTION_NAME = "broker"
+    _CFG_HOST = "host"
+    _CFG_PORT = "port"
 
-    connection: pika.BlockingConnection = None
-    channel: pika.adapters.blocking_connection.BlockingChannel = None
+    _connection: pika.BlockingConnection = None
+    _channel: pika.adapters.blocking_connection.BlockingChannel = None
 
-    def __init__(self, config_file: str = DEFAULT_CFG_FILE_NAME):
-        self.__init_broker(config_file)
+    def __init__(self, config_file: str = _DEFAULT_CFG_FILE_NAME):
+        self._init_broker(config_file)
 
-    def __init_broker(self, config_file: str) -> None:
+    def _init_broker(self, config_file: str) -> None:
         """Initialises the producer connection following the given configuration file. If no file is given or not well
         written, the default values are used. A warning message is printed if the "broker" section or the file
         is omitted.
@@ -57,35 +57,35 @@ class Broker:
             logging.warning(
                 f"None of the configuration files has been successfully read. The default configuration settings "
                 f"have been used.")
-            host = self.DEFAULT_HOST
-            port = self.DEFAULT_PORT
-        elif not config.has_section(self.SECTION_NAME):
+            host = self._DEFAULT_HOST
+            port = self._DEFAULT_PORT
+        elif not config.has_section(self._SECTION_NAME):
             logging.warning(
-                f"No configuration file has a \"{self.SECTION_NAME}\" section. The default configuration settings "
+                f"No configuration file has a \"{self._SECTION_NAME}\" section. The default configuration settings "
                 f"have been used.")
-            host = self.DEFAULT_HOST
-            port = self.DEFAULT_PORT
+            host = self._DEFAULT_HOST
+            port = self._DEFAULT_PORT
         else:
-            host = self.DEFAULT_HOST if config[self.SECTION_NAME][self.CFG_HOST] is None \
-                else config[self.SECTION_NAME][self.CFG_HOST]
-            port = self.DEFAULT_PORT if config[self.SECTION_NAME][self.CFG_PORT] is None \
-                else int(config[self.SECTION_NAME][self.CFG_PORT])
+            host = self._DEFAULT_HOST if config[self._SECTION_NAME][self._CFG_HOST] is None \
+                else config[self._SECTION_NAME][self._CFG_HOST]
+            port = self._DEFAULT_PORT if config[self._SECTION_NAME][self._CFG_PORT] is None \
+                else int(config[self._SECTION_NAME][self._CFG_PORT])
 
         logging.info(f"Connection attempt with {host}:{port}")
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
-        self.channel = self.connection.channel()
+        self._connection = pika.BlockingConnection(pika.ConnectionParameters(host=host, port=port))
+        self._channel = self._connection.channel()
         logging.info("Connection established")
 
     def __del__(self):
         """Closes the connection when the broker instance is deleted."""
-        if self.connection is not None:
-            self.connection.close()
+        if self._connection is not None:
+            self._connection.close()
 
     def open_channel(self, meter_id: str) -> None:
-        self.channel.queue_declare(queue=meter_id)
+        self._channel.queue_declare(queue=meter_id)
 
     def del_channel(self, meter_id: str) -> None:
-        self.channel.queue_delete(queue=meter_id)
+        self._channel.queue_delete(queue=meter_id)
 
 
 class Producer(Broker):
@@ -93,7 +93,7 @@ class Producer(Broker):
 
     def send_msg(self, meter: pv_simulator.meter.Meter, msg: str) -> None:
         self.open_channel(meter.meter_id)
-        self.channel.basic_publish(exchange='', routing_key=meter.meter_id, body=bytes(msg, _ENCODING))
+        self._channel.basic_publish(exchange='', routing_key=meter.meter_id, body=bytes(msg, _ENCODING))
 
 
 class Consumer(Broker):
@@ -101,15 +101,15 @@ class Consumer(Broker):
 
     def bind_messages(self, meter_id: str, callback: Callable) -> None:
         self.open_channel(meter_id)
-        self.channel.basic_consume(queue=meter_id, auto_ack=True, on_message_callback=callback)
+        self._channel.basic_consume(queue=meter_id, auto_ack=True, on_message_callback=callback)
 
     def start_consuming(self) -> None:
         """!!Blocking method!!
         Starts consuming incoming messages in the broker. Should be called after all the messages bindings have been
         performed with the bind_message method.
         """
-        self.channel.start_consuming()
+        self._channel.start_consuming()
 
     def stop_consuming(self) -> None:
-        self.channel.stop_consuming()
+        self._channel.stop_consuming()
 
