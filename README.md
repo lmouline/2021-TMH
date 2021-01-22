@@ -101,3 +101,20 @@ The CSV file contains five columns:
 This is why the final timestamps is the one of the meter. This is, of course, a simplification of a real case.
 
 You can stop the service at anytime with `Ctrl-C`.
+
+# How to run the tests?
+
+We use the [unittest](https://docs.python.org/3/library/unittest.html) test engine for this project.
+It only requires one additional library: [parameterized v0.8.1](https://pypi.org/project/parameterized/). 
+You can install it manually or using the `requirements.txt` file: `pip install -r requirements.txt`.
+
+To execute the test suite, simply run the following command from the root directory: `python -m unittest`.
+
+# Project structure
+
+- `pv_simulator`: package that contains the whole implementation of the challenge
+  - `broker.py`: module that implements the connection to the RabbitMQ broker
+  - `meter.py`: module that implements the mock of the meter service
+  - `out.py`: module that handles the writing into a file  
+  - `pv_service.py`: module that implements the mock of the PV service
+- `tests`: package that contains the test suite 
